@@ -1,69 +1,56 @@
-describe('Login Test Soucedemo', () => {
 
-    const baseUrl = Cypress.config("baseUrl");
-    const username = Cypress.env("username");
-    const password = Cypress.env("password");
+import homepage from "../support/pageObjects/homepage";
+import loginPage from "../support/pageObjects/loginPage";
+
+describe('Test Login Soucedemo', () => {
+
+  beforeEach(() => {
+
+    loginPage.visitLoginPage();
+  });
 
   it('Successfuly Login', () => {
 
-    cy.visit(baseUrl);
-
-    cy.get('[data-test="username"]').type(username);
-    cy.get('[data-test="password"]').type(password);
-    cy.get('[data-test="login-button"]').click();
-
-    cy.get('[data-test="title"]').should("have.text", "Products");
-
+   loginPage.validLogin();
+   homepage.validateInHomepage();
   })
 
   it('Empty Login', () => {
 
-    cy.visit(baseUrl);
-
-    cy.get('[data-test="login-button"]').click();
-
-    cy.get('[data-test="error"]').should("be.visible")
-    .and("contain.text", "Epic sadface: Username is required");
-
+      cy.fixture("messages").then((messages) => {
+        loginPage.clickButtonLogin();
+        loginPage.validateErrorMessage(messages.emptyUsername);
+    });
   })
 
   it('Login With Invalid Username', () => {
 
-     cy.visit(baseUrl);
-
-     cy.get('[data-test="username"]').type("nanabi");
-     cy.get('[data-test="password"]').type(password);
-     cy.get('[data-test="login-button"]').click();
-
-     cy.get('[data-test="error"]').should("be.visible")
-     .and("contain.text", "Epic sadface: Username and password do not match any user in this service");
-
+      cy.fixture("messages").then((messages) => {
+          loginPage.inputUsername(Cypress.env("invalid_username"));
+          loginPage.inputPassword(Cypress.env("password"));
+          loginPage.clickButtonLogin();
+          loginPage.validateErrorMessage(messages.doesntMatch);
+      });
   })
 
   it('Login With Invalid Password', () => {
 
-    cy.visit(baseUrl);
-
-    cy.get('[data-test="username"]').type(username);
-    cy.get('[data-test="password"]').type("1234");
-    cy.get('[data-test="login-button"]').click();
-
-    cy.get('[data-test="error"]').should("be.visible")
-    .and("contain.text", "Epic sadface: Username and password do not match any user in this service");
-
+      cy.fixture("messages").then((messages) => {
+          loginPage.inputUsername(Cypress.env("username"));
+          loginPage.inputPassword(Cypress.env("invalid_password"));
+          loginPage.clickButtonLogin();
+          loginPage.validateErrorMessage(messages.doesntMatch);
+      });
   })
 
-  it('Login With Invalid Password', () => {
+  it('Login With Invalid Username Password', () => {
 
-    cy.visit(baseUrl);
-
-    cy.get('[data-test="username"]').type("nanabi");
-    cy.get('[data-test="password"]').type("1234");
-    cy.get('[data-test="login-button"]').click();
-
-    cy.get('[data-test="error"]').should("be.visible")
-    .and("contain.text", "Epic sadface: Username and password do not match any user in this service");
-
+      cy.fixture("messages").then((messages) => {
+          loginPage.inputUsername(Cypress.env("invalid_username"));
+          loginPage.inputPassword(Cypress.env("invalid_password"));
+          loginPage.clickButtonLogin();
+          loginPage.validateErrorMessage(messages.doesntMatch);
+      });
   })
   
 })
